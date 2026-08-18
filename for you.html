@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Untuk Rara</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=Dancing+Script:wght@500;700&display=swap');
+ 
+  :root{
+    --ink: #191830;
+    --ink-2: #262244;
+    --ink-3: #33285a;
+    --gold: #d8b57d;
+    --gold-dim: #9c845a;
+    --rose: #d08e93;
+    --paper: #f4ecdb;
+    --paper-2: #ece0c8;
+    --text-on-paper: #2b2338;
+    --text-on-ink: #f3ecdc;
+    --muted: #b9aed6;
+    --serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+    --body: 'Lora', Georgia, serif;
+    --script: 'Dancing Script', cursive;
+  }
+ 
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--text-on-ink);
+    font-family:var(--body);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  #lock.unlocked ~ #content, #content{ }
+  body.locked{overflow:hidden; height:100vh;}
+ 
+  /* ---------- ambient particles ---------- */
+  #sky{
+    position:fixed; inset:0; pointer-events:none; z-index:1; overflow:hidden;
+  }
+  .spark{
+    position:absolute;
+    width:3px; height:3px;
+    background:var(--gold);
+    border-radius:50%;
+    opacity:.55;
+    filter:blur(.2px);
+    animation:drift linear infinite, twinkle ease-in-out infinite;
+  }
+  @keyframes drift{
+    from{ transform:translateY(0); }
+    to{ transform:translateY(-40px); }
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.15;}
+    50%{opacity:.75;}
+  }
+ 
+  /* ---------- lock screen ---------- */
+  #lock{
+    position:fixed; inset:0; z-index:20;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:
+      radial-gradient(ellipse at 50% 20%, var(--ink-3) 0%, var(--ink) 55%);
+    text-align:center;
+    padding:24px;
+    transition:opacity 1s ease, visibility 1s ease;
+  }
+  #lock.unlocked{ opacity:0; visibility:hidden; pointer-events:none; }
+ 
+  .eyebrow{
+    font-family:var(--body);
+    font-size:.72rem;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 22px;
+  }
+ 
+  .seal-wrap{
+    width:132px; height:132px;
+    position:relative;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .seal-half{
+    position:absolute; top:0; width:100%; height:100%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 35% 30%, #e7c690, var(--gold) 45%, var(--gold-dim) 80%);
+    box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 2px 6px rgba(255,255,255,.35), inset 0 -6px 10px rgba(0,0,0,.25);
+    transition: transform .8s cubic-bezier(.6,-0.2,.2,1.4), opacity .8s ease;
+  }
+  .seal-half.left{ clip-path: inset(0 50% 0 0); }
+  .seal-half.right{ clip-path: inset(0 0 0 50%); }
+  .seal-wrap svg{
+    position:absolute; inset:0; margin:auto;
+    width:56px; height:56px;
+    z-index:2;
+    pointer-events:none;
+  }
+  .seal-wrap svg path{
+    fill:none; stroke:var(--ink); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round;
+    opacity:.75;
+  }
+  .seal-wrap:hover .seal-half{ filter:brightness(1.08); }
+  .seal-wrap.cracked .seal-half.left{ transform:translate(-26px,-10px) rotate(-18deg); opacity:0; }
+  .seal-wrap.cracked .seal-half.right{ transform:translate(26px,10px) rotate(18deg); opacity:0; }
+ 
+  .lock-hint{
+    margin-top:26px;
+    font-family:var(--body);
+    font-style:italic;
+    font-size:.92rem;
+    color:var(--muted);
+  }
+  .lock-title{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(1.5rem, 5vw, 2.1rem);
+    margin:14px 0 4px;
+    color:var(--text-on-ink);
+  }
+ 
+  /* ---------- content ---------- */
+  #content{ position:relative; z-index:2; }
+  section{
+    position:relative;
+    padding:120px 24px;
+    max-width:640px;
+    margin:0 auto;
+  }
+ 
+  .reveal{
+    opacity:0; transform:translateY(22px);
+    transition:opacity .9s ease, transform .9s ease;
+  }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+ 
+  /* intro */
+  #intro{ text-align:center; padding-top:22vh; }
+  #intro .script{
+    font-family:var(--script);
+    font-size:clamp(1.6rem,6vw,2.2rem);
+    color:var(--rose);
+    display:block;
+    margin-bottom:6px;
+  }
+  #intro h1{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(2.4rem,8vw,3.6rem);
+    line-height:1.08;
+    margin:0 0 22px;
+  }
+  #intro p{
+    font-size:1.05rem;
+    line-height:1.8;
+    color:var(--muted);
+    max-width:36ch;
+    margin:0 auto;
+  }
+  .scroll-cue{
+    margin-top:64px;
+    font-size:.7rem;
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    color:var(--gold-dim);
+  }
+  .scroll-cue::after{
+    content:'';
+    display:block;
+    width:1px; height:38px;
+    margin:14px auto 0;
+    background:linear-gradient(var(--gold), transparent);
+    animation:pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:.3;} 50%{opacity:1;} }
+ 
+  /* letter */
+  #letter{ padding-top:60px; padding-bottom:60px; }
+  .letter-card{
+    background:linear-gradient(180deg, var(--paper), var(--paper-2));
+    color:var(--text-on-paper);
+    border-radius:2px;
+    padding:52px 38px;
+    box-shadow:0 30px 60px rgba(0,0,0,.35);
+    position:relative;
+  }
+  .letter-card::before{
+    content:'';
+    position:absolute; left:26px; right:26px; top:14px; bottom:14px;
+    border:1px solid rgba(43,35,56,.12);
+    pointer-events:none;
+  }
+  .letter-heading{
+    font-family:var(--script);
+    font-size:1.9rem;
+    color:var(--rose);
+    margin:0 0 18px;
+  }
+  .letter-card p{
+    font-family:var(--body);
+    font-size:1.02rem;
+    line-height:1.95;
+    margin:0 0 20px;
+  }
+  .letter-sign{
+    font-family:var(--script);
+    font-size:1.7rem;
+    color:var(--text-on-paper);
+    margin-top:8px;
+  }
+ 
+  /* moments */
+  #moments h2, #finale h2{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(1.8rem,5vw,2.4rem);
+    text-align:center;
+    margin:0 0 8px;
+  }
+  .section-sub{
+    text-align:center;
+    color:var(--muted);
+    font-style:italic;
+    font-size:.95rem;
+    margin:0 0 56px;
+  }
+  .moment{
+    display:grid;
+    grid-template-columns:96px 1fr;
+    gap:22px;
+    align-items:center;
+    margin-bottom:34px;
+  }
+  .moment:nth-child(even){ direction:rtl; }
+  .moment:nth-child(even) > *{ direction:ltr; }
+  .frame{
+    width:96px; height:96px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--ink-3), var(--ink-2));
+    border:1px solid rgba(216,181,125,.4);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.3rem;
+    color:var(--gold);
+    flex-shrink:0;
+  }
+  .moment-text .date{
+    font-size:.72rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--gold-dim);
+    display:block;
+    margin-bottom:6px;
+  }
+  .moment-text p{
+    margin:0;
+    font-size:1rem;
+    line-height:1.7;
+    color:var(--text-on-ink);
+  }
+ 
+  /* finale */
+  #finale{ text-align:center; padding-bottom:160px; }
+  .constellation{ width:min(320px,80vw); margin:8px auto 30px; }
+  .constellation path{
+    fill:none;
+    stroke:var(--gold);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray:600;
+    stroke-dashoffset:600;
+    transition:stroke-dashoffset 2.4s ease;
+  }
+  .constellation.draw path{ stroke-dashoffset:0; }
+  .constellation circle{
+    fill:var(--gold);
+    opacity:0;
+    transition:opacity .5s ease;
+  }
+  .constellation.draw circle{ opacity:1; }
+  #finale .script{
+    font-family:var(--script);
+    color:var(--rose);
+    font-size:clamp(1.6rem,5vw,2rem);
+    display:block;
+    margin-top:6px;
+  }
+  #finale p.closing{
+    max-width:34ch; margin:22px auto 0;
+    color:var(--muted);
+    line-height:1.8;
+  }
+  .replay{
+    margin-top:52px;
+    background:none;
+    border:1px solid var(--gold-dim);
+    color:var(--gold);
+    font-family:var(--body);
+    font-style:italic;
+    font-size:.9rem;
+    padding:12px 26px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background .3s ease, color .3s ease;
+  }
+  .replay:hover{ background:var(--gold); color:var(--ink); }
+  .replay:focus-visible, .seal-wrap:focus-visible, button:focus-visible{
+    outline:2px solid var(--gold); outline-offset:4px;
+  }
+ 
+  footer{
+    text-align:center;
+    padding:40px 24px 60px;
+    font-size:.75rem;
+    letter-spacing:.05em;
+    color:var(--gold-dim);
+    font-style:italic;
+  }
+
+  /* ---------- music toggle ---------- */
+  #music-toggle{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    z-index:30;
+    width:52px; height:52px;
+    border-radius:50%;
+    border:1px solid rgba(216,181,125,.55);
+    background:radial-gradient(circle at 35% 30%, var(--ink-3), var(--ink-2));
+    color:var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    box-shadow:0 8px 22px rgba(0,0,0,.35);
+    opacity:0;
+    transform:translateY(10px);
+    transition:opacity .6s ease, transform .6s ease, background .3s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #music-toggle.show{ opacity:1; transform:translateY(0); }
+  #music-toggle svg{ width:22px; height:22px; }
+  #music-toggle .bar{
+    fill:var(--gold);
+  }
+  /* simple equalizer animation when playing */
+  #music-toggle.playing .bar{
+    animation:eq 1s ease-in-out infinite;
+    transform-origin:bottom;
+  }
+  #music-toggle.playing .bar:nth-child(1){ animation-delay:-0.2s; }
+  #music-toggle.playing .bar:nth-child(2){ animation-delay:-0.6s; }
+  #music-toggle.playing .bar:nth-child(3){ animation-delay:-0.9s; }
+  @keyframes eq{
+    0%,100%{ transform:scaleY(.4); }
+    50%{ transform:scaleY(1); }
+  }
+ 
+  @media (max-width:480px){
+    section{ padding:90px 20px; }
+    .moment{ grid-template-columns:70px 1fr; gap:16px; }
+    .frame{ width:70px; height:70px; font-size:1rem; }
+    .letter-card{ padding:38px 24px; }
+    #music-toggle{ right:14px; bottom:14px; width:46px; height:46px; }
+  }
+ 
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .spark{ animation:none; opacity:.3; }
+    .seal-half, .reveal, .constellation path, .constellation circle{ transition-duration:.2s !important; }
+    .scroll-cue::after{ animation:none; }
+    #music-toggle.playing .bar{ animation:none; }
+  }
+</style>
+</head>
+<body class="locked">
+ 
+<div id="sky"></div>
+
+<!-- BACKGROUND MUSIC -->
+<!-- Ganti src di bawah ini dengan URL/path lagu pilihanmu (mp3, disarankan yang lisensinya kamu miliki/bebas royalti) -->
+<audio id="bg-music" loop preload="auto">
+  <source src="Ed Sheeran - Perfect.mp3" type="audio/mpeg">
+</audio>
+
+<button id="music-toggle" aria-label="Nyalakan atau matikan musik" title="Musik">
+  <svg viewBox="0 0 24 24">
+    <rect class="bar" x="4" y="9" width="3" height="6" rx="1"></rect>
+    <rect class="bar" x="10.5" y="5" width="3" height="14" rx="1"></rect>
+    <rect class="bar" x="17" y="11" width="3" height="4" rx="1"></rect>
+  </svg>
+</button>
+ 
+<!-- LOCK SCREEN -->
+<section id="lock">
+  <p class="eyebrow">sebuah kado kecil</p>
+  <div class="seal-wrap" id="seal" role="button" tabindex="0" aria-label="Pecahkan segel untuk membuka">
+    <div class="seal-half left"></div>
+    <div class="seal-half right"></div>
+    <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.4 8.1 2.3 4.5 6 4c2.1-.3 3.7 1 6 3.4C14.3 5 15.9 3.7 18 4c3.7.5 5.6 4.1 4 7.7C19.5 16.4 12 21 12 21z"/></svg>
+  </div>
+  <p class="lock-title">Tekan segelnya untuk membuka.</p>
+  <p class="lock-hint">untuk Rara, dariku</p>
+</section>
+ 
+<div id="content">
+ 
+  <section id="intro">
+    <span class="script reveal">sebelum kamu lanjut baca—</span>
+    <h1 class="reveal">Ini untukmu,<br>Rara.</h1>
+    <p class="reveal">Setiap baris di sini ditulis pelan-pelan, sambil memikirkanmu terus. Nggak usah buru-buru bacanya.</p>
+    <p class="scroll-cue reveal">lanjut ke bawah</p>
+  </section>
+ 
+  <section id="letter">
+    <div class="letter-card reveal">
+      <p class="letter-heading">Sepucuk surat, isinya jujur</p>
+      <p>Haiiii sayangggkuuuu,cantikkuuu,imutttkuuu,manissskuuu. iniii mungkinnn ndakk begituuu banyakk dann mungkinnn gakk begituuu berartiii buattmuu.., tapii, semogaaa kamuuu sukaa yaaa✌️😸.</p>
+      <p>Sebenarnyaaaa.. banyakkk sekaliii yangg inginnn kuu ucappinn, makasiiii yaaa udaaa kenallll samaaa akuuuu,makasiii jugaaa udaaa mauuu nemeninnn akuuu, makasiii jugaaa udaaa bikinnn hidupppkuuu lebihhh berwarnaa lagiii, makasiiii buattt semua-muanyaaaa😸💐</p>
+      <p>Dann.. akuu inginnn titipp 1 pesannnn, kalooo kitaa adaaa masalahhh. Tolongg buattt dikomunikasiinnn barenggg" yaaa sayanggg???</p>
+    </div>
+  </section>
+ 
+  <section id="moments">
+    <h2 class="reveal">Rasi bintang kecil</h2>
+    <p class="section-sub reveal">Aku suka semua hal yang kamu miliki💐</p>
+ 
+    <div class="moment reveal">
+      <div class="frame">＊</div>
+      <div class="moment-text">
+        <span class="date">awal mula</span>
+        <p>first meet kita di tiktok, berujung lanjut di wa dan ig dan lain-lainnya. hehee✌️</p>
+      </div>
+    </div>
+ 
+    <div class="moment reveal">
+      <div class="frame">✦</div>
+      <div class="moment-text">
+        <span class="date">hari yang baik</span>
+        <p>hari-hari dimana kita ketawa bareng dan bercanda bareng😁</p>
+      </div>
+    </div>
+ 
+    <div class="moment reveal">
+      <div class="frame">✧</div>
+      <div class="moment-text">
+        <span class="date">belakangan ini</span>
+        <p>moment yang kita lalui bersama. Membuatku makin sayang sama kamu.💖</p>
+      </div>
+    </div>
+ 
+    <div class="moment reveal">
+      <div class="frame">♡</div>
+      <div class="moment-text">
+        <span class="date">hari ini</span>
+        <p>Alasan aku lakuin ini semua itu karena.., aku ingin kamu merasakan bahagia yang aku rasakan bersamamu.💖</p>
+      </div>
+    </div>
+  </section>
+ 
+  <section id="finale">
+    <h2 class="reveal">Sampai kapan pun ini nyampe ke kamu—</h2>
+    <svg class="constellation reveal" id="constellation" viewBox="0 0 100 90">
+      <path d="M50,28 C46,14 26,12 18,24 C10,38 24,54 50,74 C76,54 90,38 82,24 C74,12 54,14 50,28 Z"/>
+      <circle cx="50" cy="28" r="2.2"/>
+      <circle cx="18" cy="24" r="2.2"/>
+      <circle cx="14" cy="38" r="2.2"/>
+      <circle cx="50" cy="74" r="2.2"/>
+      <circle cx="86" cy="38" r="2.2"/>
+      <circle cx="82" cy="24" r="2.2"/>
+    </svg>
+    <span class="script reveal">aku bersyukur yang kutemui itu kamu, Rara.</span>
+    <p class="closing reveal">Makasih udah baca sampai habis. Sebenarnya, itu saja sudah jadi hadiahnya.</p>
+    <button class="replay" id="replay">buka lagi dari awal ↺</button>
+  </section>
+ 
+  <footer>template kecil — ganti dengan kata-kata, nama, dan fotomu sendiri</footer>
+ 
+</div>
+ 
+<script>
+  // ambient sparks
+  const sky = document.getElementById('sky');
+  const n = window.innerWidth < 500 ? 16 : 28;
+  for(let i=0;i<n;i++){
+    const s = document.createElement('div');
+    s.className = 'spark';
+    const size = 1.5 + Math.random()*2.5;
+    s.style.width = size+'px';
+    s.style.height = size+'px';
+    s.style.left = Math.random()*100+'vw';
+    s.style.top = Math.random()*100+'vh';
+    s.style.animationDuration = (10+Math.random()*14)+'s, '+(2+Math.random()*3)+'s';
+    s.style.animationDelay = (-Math.random()*10)+'s, '+(-Math.random()*3)+'s';
+    sky.appendChild(s);
+  }
+ 
+  // ---------- background music ----------
+  const music = document.getElementById('bg-music');
+  const musicToggle = document.getElementById('music-toggle');
+  music.volume = 0.55;
+
+  function playMusic(){
+    music.play().then(()=>{
+      musicToggle.classList.add('playing');
+    }).catch(()=>{
+      // autoplay diblokir browser; tombol tetap muncul agar user bisa tekan manual
+      musicToggle.classList.remove('playing');
+    });
+  }
+  function pauseMusic(){
+    music.pause();
+    musicToggle.classList.remove('playing');
+  }
+  musicToggle.addEventListener('click', ()=>{
+    if(music.paused){ playMusic(); } else { pauseMusic(); }
+  });
+
+  // lock / seal
+  const seal = document.getElementById('seal');
+  const lock = document.getElementById('lock');
+  const body = document.body;
+ 
+  function openSeal(){
+    if(seal.classList.contains('cracked')) return;
+    seal.classList.add('cracked');
+    setTimeout(()=>{
+      lock.classList.add('unlocked');
+      body.classList.remove('locked');
+      document.getElementById('intro').scrollIntoView({behavior:'smooth'});
+    }, 750);
+    // klik segel dihitung sebagai interaksi user pertama -> aman untuk mulai audio
+    musicToggle.classList.add('show');
+    playMusic();
+  }
+  seal.addEventListener('click', openSeal);
+  seal.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openSeal(); }});
+ 
+  // replay
+  document.getElementById('replay').addEventListener('click', ()=>{
+    seal.classList.remove('cracked');
+    lock.classList.remove('unlocked');
+    body.classList.add('locked');
+    window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+  });
+ 
+  // reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); }
+    });
+  }, {threshold:.2});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+ 
+  // constellation draw
+  const constellation = document.getElementById('constellation');
+  const io2 = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ constellation.classList.add('draw'); }
+    });
+  }, {threshold:.4});
+  io2.observe(constellation);
+</script>
+</body>
+</html>
